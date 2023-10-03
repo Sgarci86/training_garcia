@@ -1,0 +1,38 @@
+---
+title: "Intro to Quarto"
+format: html
+bibliography: references.bib
+execute: 
+  echo: false
+---
+
+# Header 1
+
+I'm going to **bold this text**
+
+-   list 1
+
+[hyperlink](uic.edu)
+
+this is a very important fact [@oke2020a]
+
+Inserting tables
+
+| Col1      | Col2 | Col3  |
+|-----------|------|-------|
+| element 1 | lala | hello |
+| element 2 | lala | hello |
+|           |      |       |
+
+<!-- note the below is writing r script so you can comment out there-->
+
+```{r}
+x<-4*8
+
+high_vec<-c(5.2,6.0,5.7)
+
+
+
+```
+
+<!--# notes this is the comment out way of doing it on a markdown document the way you do it is press insert then comment -->
