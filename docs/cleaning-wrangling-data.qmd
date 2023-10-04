@@ -1,0 +1,203 @@
+---
+title: "Cleaning and Wrangling data"
+format: html
+---
+
+##setup##
+
+# read data
+
+```{r}
+#| warning: false
+#| message: false
+
+library(dplyr)
+library(tidyr)
+library(readr)
+
+```
+
+# read data
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: false
+#| eval: false
+
+
+catch_original<-read_csv("https://knb.ecoinformatics.org/knb/d1/mn/v2/object/df35b.302.1")
+colnames(catch_original)
+summary(catch_original)
+head(catch_original)
+
+unique(catch_original$Region)
+
+
+```
+
+df_filtered <- filter(df, ...)
+df_selected <- select(df_filtered, ...)
+
+df_cleaned <- df %>% 
+    filter(...) %>%
+    select(...)
+    
+## using `select()' to remove or select column
+```{r}
+catch_data<-catch_original %>% 
+  select(Region, Year, Chinook, Sockeye, Coho, Pink, Chum)
+
+catch_data<-catch_original %>% 
+  select(-All, -notesRegCode)
+
+
+
+
+```
+
+
+
+Quality check 
+```{r}
+glimpse(catch_data)
+
+```
+## Overwrite Chinook column using `mutate()`
+
+```{r}
+catch_clean<-catch_data %>%
+  mutate(Chinook = as.numeric(Chinook))
+
+
+```
+
+```{r}
+i<- which(is.na(catch_clean$Chinook))
+i
+
+catch_data[i,]
+
+
+```
+
+```{r}
+catch_clean <- catch_data %>%
+  mutate(Chinook = if_else(condition = Chinook == "I", 
+                           true = "1",
+                           false = Chinook),
+         Chinook = as.numeric(Chinook))
+
+glimpse(catch_clean)
+
+```
+
+
+## Reshaping DF with `pivot_longer()` and `pivot_wider()`
+
+```{r}
+
+catch_long <- catch_clean %>% 
+  pivot_longer(cols= -c(Region, Year), 
+               names_to = "species", 
+               values_to = "catch")
+
+head(catch_long)
+
+
+```
+
+## `rename()`
+
+```{r}
+catch_long<-catch_long %>%
+  rename(catch_thousand = catch)
+
+colnames(catch_long)
+
+```
+
+
+## Adding a column using `mutate()`
+
+```{r}
+catch_long<-catch_long %>%
+  mutate(catch = catch_thousand*1000) %>%
+  select(-catch_thousand)
+
+head(catch_long)
+
+```
+
+
+## Aplit-Apply-Combine
+
+```{r}
+mean_region <- catch_long %>%
+  group_by(Region) %>%
+  summarize(mean_catch = mean(catch))
+arrange(desc(mean_catch))
+
+head(mean_region)
+
+
+n_region <- catch_long %>% 
+  group_by(Region) %>%
+  summarize(n =n())
+
+head(n_region)
+
+mean_region2 <- catch_long %>%
+  group_by(Region) %>%
+  mutate(mean_catch = mean(catch))
+
+
+head(mean_region2)
+
+
+```
+
+## filter function `filter()`
+
+
+```{r}
+
+sse_catch<-catch_long %>%
+  filter(Region == "SSE")
+
+sse_nse_catch <- catch_long %>%
+  filter(Region %in% c("SSE","NSE"))
+
+
+
+unique(sse_nse_catch$Region)
+``` 
+
+
+<!--this is how to comment out on this white space in markdown--> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
